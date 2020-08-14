@@ -25,6 +25,7 @@ $ sudo sh get_weights.sh
 ```
 ## Usage
 
+Start with:
 ```bash
 # Run predicting
 $ python main.py -m predict -folder /home/user/photos/
