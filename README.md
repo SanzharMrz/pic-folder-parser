@@ -14,7 +14,8 @@ $ cd pic-folder-parser
 # Install requirements
 $ pip install -r requirements.txt
 
-
+# Run bash script for downloading pretrained weights
+$ sudo sh get_weights.sh
 ```
 ## Usage
 Pass
