@@ -8,7 +8,7 @@ Use Python? Want to detect some faces? Maybe parse some folders? Looking for ele
 - Python 3.6 or later.
 - UNIX OS.
 - CUDA GPU (optional).
-- Some folder with .jpg pictures.
+- Some folder with _.jpg_ pictures.
 
 ## Installation
 ```bash
