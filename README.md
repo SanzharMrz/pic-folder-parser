@@ -3,6 +3,12 @@
 ## Description
 Use Python? Want to detect some faces? Maybe parse some folders? Looking for elegant solution? This service brings the SOTA face detection architecture to your Python application!
 
+## Requirements
+
+- Python 3.6 or later.
+- UNIX OS
+- CUDA GPU (optional)
+
 ## Installation
 ```bash
 # Cloning repo
