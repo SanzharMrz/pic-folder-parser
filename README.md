@@ -42,3 +42,4 @@ After processing all photos, in base project directory will appear <b>'results_{
 # Run eval
 $ python main.py -m eval -folder photos/ -target target/photos_target.pickle
 ```
+Check scores.csv in <b>'results_{folder}'</b>, and the same classification report in logs.
