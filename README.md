@@ -30,3 +30,10 @@ $ sudo sh get_weights.sh
 $ python main.py -m predict -folder /home/user/photos/
 ```
 
+Note that you can set nested path to folder, like:
+
+```bash
+# Run predicting
+$ python main.py -m predict -folder photos/
+```
+
