@@ -24,4 +24,9 @@ $ pip install -r requirements.txt
 $ sudo sh get_weights.sh
 ```
 ## Usage
-Pass
+
+```bash
+# Run predicting
+$ python main.py -m predict -folder /home/user/photos/
+```
+
