@@ -1,3 +1,4 @@
+sklearn
 numpy
 pandas
 tensorflow-gpu>=1.12.1

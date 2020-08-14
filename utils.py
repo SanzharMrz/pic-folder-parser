@@ -1,6 +1,5 @@
-import datetime
-import numpy as np
 import cv2
+import numpy as np
 
 
 def get_outputs_names(net):
@@ -35,39 +34,38 @@ def post_process(frame, outs, conf_threshold, nms_threshold):
         h = i[0]
         box = boxes[h]
         final_boxes.append(box)
-      
+
     return final_boxes
 
 
 def score_photos(folder, target=None, create_copies=False, conf_thres=0.3, nms_thres=0.4):
-    
     from shutil import copyfile
     import cv2
     import os
     import pandas as pd
     import pickle
     from sklearn.metrics import classification_report
-    
+
     folder_last = list(filter(lambda x: len(x), folder.split('/')))[-1]
     output_folder = f'./results_{folder_last}'
 
     positive_folder = 'YES'
-    negative_folder= 'NO'
+    negative_folder = 'NO'
 
     files_yes_path = os.path.join(output_folder, positive_folder)
     files_no_path = os.path.join(output_folder, negative_folder)
 
-    if not os.path.exists(output_folder): 
+    if not os.path.exists(output_folder):
         os.makedirs(os.path.join(output_folder, positive_folder))
         os.makedirs(os.path.join(output_folder, negative_folder))
-    
+
     model_weights = './model-weights/model.weights'
     model_cfg = './cfg/model.cfg'
-    
+
     net = cv2.dnn.readNetFromDarknet(model_cfg, model_weights)
     net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
     net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
-    
+
     predicts = dict()
     files = os.listdir(folder)
     files_len = len(files)
@@ -79,14 +77,15 @@ def score_photos(folder, target=None, create_copies=False, conf_thres=0.3, nms_t
             has_frame, frame = cap.read()
             if not has_frame:
                 break
-            blob = cv2.dnn.blobFromImage(frame, 1 / 255, (416, 416),[0, 0, 0], 1, crop=False)
+            blob = cv2.dnn.blobFromImage(frame, 1 / 255, (416, 416), [0, 0, 0], 1, crop=False)
             net.setInput(blob)
             outs = net.forward(get_outputs_names(net))
             faces = post_process(frame, outs, conf_thres, nms_thres)
             print(f'{i} / {files_len} pictures processed, current {file} has {len(faces)} faces')
             if create_copies:
                 output = os.path.join(folder, file)
-                output_copy_path = os.path.join(files_yes_path, f"yes\\{file}") if len(faces) else os.path.join(files_no_path, f"no\\{file}")
+                output_copy_path = os.path.join(files_yes_path, f"yes\\{file}") if len(faces) else os.path.join(
+                    files_no_path, f"no\\{file}")
                 copyfile(output, output_copy_path)
             predicts[file] = int(bool(faces))
         cap.release()
