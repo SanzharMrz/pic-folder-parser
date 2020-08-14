@@ -95,12 +95,12 @@ def score_photos(folder, target=None, create_copies=False, conf_thres=0.3, nms_t
         with open(target, "rb") as f:
             target_dict = pickle.load(f)
         metric_file = 'scores.csv'
-        srt_trg = sorted(target_dict.items())
-        srt_prd = sorted(predicts.items())
+        srt_trg, srt_prd = sorted(target_dict.items()), sorted(predicts.items())
+        val_trg, val_prd = [elem[1] for elem in srt_trg],  [elem[1] for elem in srt_prd]
         assert [elem[0] for elem in srt_trg] == [elem[0] for elem in srt_prd]
         print('Classification report:')
-        report = classification_report([elem[1] for elem in srt_trg], [elem[1] for elem in srt_prd], output_dict=True)
-        print(classification_report([elem[1] for elem in srt_trg], [elem[1] for elem in srt_prd]))
+        report = classification_report(val_trg, val_prd, output_dict=True)
+        print(classification_report(val_trg, val_prd))
         df = pd.DataFrame(report).transpose()
         print(f'Metrics for {folder} saved in {output_folder} as {metric_file}')
         df.to_csv(f'{os.path.join(output_folder, metric_file)}', index=False)
