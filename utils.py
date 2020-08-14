@@ -61,7 +61,7 @@ def score_photos(folder, target=None, create_copies=False, conf_thres=0.3, nms_t
         os.makedirs(os.path.join(output_folder, positive_folder))
         os.makedirs(os.path.join(output_folder, negative_folder))
     
-    model_weights = './model-weights/yolov3-wider_16000.weights'
+    model_weights = './model-weights/model.weights'
     model_cfg = './cfg/model.cfg'
     
     net = cv2.dnn.readNetFromDarknet(model_cfg, model_weights)
