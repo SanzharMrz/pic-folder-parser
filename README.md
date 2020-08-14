@@ -30,10 +30,15 @@ $ sudo sh get_weights.sh
 $ python main.py -m predict -folder /home/user/photos/
 ```
 
-Note that you can set local path to folder, like:
+Note that, you can set into arguments, local path to folder, like:
 
 ```bash
 # Run predicting
 $ python main.py -m predict -folder photos/
 ```
-After processing all photos, in base project directory will appear <b>'results_{folder}'</b>  with __"YES"__ and __"NO"__ subdirectories, where all proceeded pictures were recorded.
+After processing all photos, in base project directory will appear <b>'results_{folder}'</b>  with __"YES"__ and __"NO"__ subdirectories, where all proceeded pictures were recorded. For evaluating models performance, run:
+
+```bash
+# Run eval
+$ python main.py -m eval -folder photos/ -target target/photos_target.pickle
+```
