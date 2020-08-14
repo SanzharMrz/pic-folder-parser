@@ -1,6 +1,6 @@
 # pic-folder-parser
 
 
-```bash
+```console
 git clone https://github.com/SanzharMrz/pic-folder-parser.git
 ```
