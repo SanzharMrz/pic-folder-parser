@@ -1,4 +1,5 @@
 # pic-folder-parser
+
 Pass
 
 # Installation
@@ -6,3 +7,5 @@ Pass
 # Cloning repo
 $ git clone https://github.com/SanzharMrz/pic-folder-parser.git
 ```
+# Usage
+Pass
