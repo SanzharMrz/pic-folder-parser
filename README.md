@@ -1,11 +1,12 @@
-# pic-folder-parser
+# Folder pictures parsing service
 
+## Description
 Pass
 
-# Installation
+## Installation
 ```bash
 # Cloning repo
 $ git clone https://github.com/SanzharMrz/pic-folder-parser.git
 ```
-# Usage
+## Usage
 Pass
