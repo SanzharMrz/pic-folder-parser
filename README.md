@@ -7,6 +7,14 @@ Use Python? Want to detect some faces? Maybe parse some folders? Looking for ele
 ```bash
 # Cloning repo
 $ git clone https://github.com/SanzharMrz/pic-folder-parser.git
+
+# Step into folder
+$ cd pic-folder-parser
+
+# Install requirements
+$ pip install -r requirements.txt
+
+
 ```
 ## Usage
 Pass
