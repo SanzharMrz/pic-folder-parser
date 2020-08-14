@@ -6,8 +6,8 @@ Use Python? Want to detect some faces? Maybe parse some folders? Looking for ele
 ## Requirements
 
 - Python 3.6 or later.
-- UNIX OS
-- CUDA GPU (optional)
+- UNIX OS.
+- CUDA GPU (optional).
 
 ## Installation
 ```bash
