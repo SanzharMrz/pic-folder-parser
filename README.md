@@ -36,4 +36,4 @@ Note that you can set local path to folder, like:
 # Run predicting
 $ python main.py -m predict -folder photos/
 ```
-
+After processing all photos, in base project directory will appear _'results_{folder}'_ folder with "YES" and "NO" subdirectories, where all proceeded pics were recorded.
