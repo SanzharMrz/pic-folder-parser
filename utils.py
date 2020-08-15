@@ -68,6 +68,12 @@ def score_photos(folder, target=None, output_folder=None, create_copies=False, c
     for i, file in enumerate(files, start=1):
         if not file.endswith(".jpg"):
             continue
+        name = ".".join(file.split(".")[:-1])
+        extension = file.split(".")[-1]
+        if name.endswith("_in_progress") or name.endswith("_done"):
+            continue
+        os.rename(os.path.join(folder, file), os.path.join(folder, name + "_in_progress." + extension))
+        file = name + "_in_progress." + extension
         cap = cv2.VideoCapture(os.path.join(folder, file))
         while True:
             has_frame, frame = cap.read()
@@ -84,6 +90,8 @@ def score_photos(folder, target=None, output_folder=None, create_copies=False, c
                 copyfile(output, output_copy_path)
             predicts[file] = int(bool(faces))
         cap.release()
+        os.rename(os.path.join(folder, name + "_in_progress." + extension), os.path.join(folder, name + "_done." + extension))
+
     print_string = f' and results saved in {output_folder}' if create_copies else ''
     print(f'All files processed' + print_string)
     if target:
