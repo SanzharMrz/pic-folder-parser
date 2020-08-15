@@ -17,6 +17,10 @@ $ git clone https://github.com/SanzharMrz/pic-folder-parser.git
 # Step into folder
 $ cd pic-folder-parser
 
+# Create a venv
+$ python3 -m virtualenvironment venv
+$ source venv/bin/activate
+
 # Install requirements
 $ pip install -r requirements.txt
 
@@ -38,3 +42,43 @@ After processing all photos, in output folder __"YES"__ and __"NO"__ subdirector
 $ python main.py --mode eval --folder photos/ --target target/photos_target.pickle --output-folder /home/user/results/
 ```
 Check scores.csv in output folder and the same classification report in logs.
+
+Daemon mode:
+```bash
+# Run predicting
+$ python main.py --mode daemon --folder /home/user/photos/  --output-folder /home/user/results/
+```
+
+You can set it up as systemd daemon
+
+```bash
+$ nano /etc/systemd/system/photodaemon.service
+```
+
+Past this (change working directory to the repo location, python path to your venv location and pathes to photo folder and results folder)
+
+```
+[Unit]
+Description=Photo daemon
+After=
+Requires=
+
+[Service]
+WorkingDirectory=<repo location>
+Type=oneshot
+RemainAfterExit=yes
+
+ExecStart=<venv location>/bin/python main.py --mode daemon --folder <folder with photos>  --output-folder <output folder>
+
+ExecReload=<venv location>/bin/python main.py --mode daemon --folder <folder with photos>  --output-folder <output folder>
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Then enable and start the service:
+```bash
+$ systemctl enable photodeamin
+$ systemctl start photodeamin
+
+```

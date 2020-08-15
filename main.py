@@ -17,7 +17,10 @@ if args.mode not in ["predict", "eval", "daemon"]:
     print('provide correct -mode  argument (example -mode eval, or -mode predict, or -mode daemon), see help')
     exit()
 
-score_photos(create_copies=args.mode in ['predict', 'daemon'],
-             folder=args.folder,
-             output_folder=args.output_folder,
-             target=args.target)
+while True:
+    score_photos(create_copies=args.mode in ['predict', 'daemon'],
+                 folder=args.folder,
+                 output_folder=args.output_folder,
+                 target=args.target)
+    if args.mode != "daemon":
+        break
