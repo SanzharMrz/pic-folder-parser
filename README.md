@@ -35,7 +35,7 @@ Evaluation mode:
 $ python main.py --mode predict --folder /home/user/photos/ --output-folder /home/user/results/
 ```
 
-After processing all photos, in output folder __"YES"__ and __"NO"__ subdirectories will appear, where all proceeded pictures were copied. For evaluating models performance, run:
+After processing all photos, in output folder will appear __"YES"__ and __"NO"__ subdirectories, where all proceeded pictures were copied. For evaluating models performance, run:
 
 ```bash
 # Run eval
