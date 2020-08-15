@@ -45,7 +45,7 @@ Check scores.csv in output folder and the same classification report in logs.
 
 Daemon mode:
 ```bash
-# Run predicting
+# Run daemon
 $ python main.py --mode daemon --folder /home/user/photos/ --output-folder /home/user/results/
 ```
 
