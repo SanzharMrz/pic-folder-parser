@@ -18,7 +18,7 @@ $ git clone https://github.com/SanzharMrz/pic-folder-parser.git
 $ cd pic-folder-parser
 
 # Create a venv
-$ python3 -m virtualenvironment venv
+$ python3 -m virtualenv venv
 $ source venv/bin/activate
 
 # Install requirements
@@ -32,7 +32,7 @@ $ sudo sh get_weights.sh
 Evaluation mode:
 ```bash
 # Run predicting
-$ python main.py --mode predict --folder /home/user/photos/  --output-folder /home/user/results/
+$ python main.py --mode predict --folder /home/user/photos/ --output-folder /home/user/results/
 ```
 
 After processing all photos, in output folder __"YES"__ and __"NO"__ subdirectories will appear, where all proceeded pictures were copied. For evaluating models performance, run:
@@ -46,8 +46,10 @@ Check scores.csv in output folder and the same classification report in logs.
 Daemon mode:
 ```bash
 # Run predicting
-$ python main.py --mode daemon --folder /home/user/photos/  --output-folder /home/user/results/
+$ python main.py --mode daemon --folder /home/user/photos/ --output-folder /home/user/results/
 ```
+
+## Usage as a deamon
 
 You can set it up as systemd daemon
 
@@ -55,7 +57,7 @@ You can set it up as systemd daemon
 $ nano /etc/systemd/system/photodaemon.service
 ```
 
-Past this (change working directory to the repo location, python path to your venv location and pathes to photo folder and results folder)
+Past this (change working directory to the repo location, python path to your venv location and paths to photo folder and results folder)
 
 ```
 [Unit]
@@ -80,5 +82,4 @@ Then enable and start the service:
 ```bash
 $ systemctl enable photodaemon
 $ systemctl start photodaemon
-
 ```
