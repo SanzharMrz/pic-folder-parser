@@ -25,22 +25,16 @@ $ sudo sh get_weights.sh
 ```
 ## Usage
 
-Start with:
+Evaluation mode:
 ```bash
 # Run predicting
-$ python main.py -m predict -folder /home/user/photos/
+$ python main.py --mode predict --folder /home/user/photos/  --output-folder /home/user/results/
 ```
 
-Note that, you can set into arguments, local path to folder, like:
-
-```bash
-# Run predicting
-$ python main.py -m predict -folder photos/
-```
-After processing all photos, in base project directory will appear <b>'results_{folder}'</b>  with __"YES"__ and __"NO"__ subdirectories, where all proceeded pictures were recorded. For evaluating models performance, run:
+After processing all photos, in output folder __"YES"__ and __"NO"__ subdirectories will appear, where all proceeded pictures were copied. For evaluating models performance, run:
 
 ```bash
 # Run eval
-$ python main.py -m eval -folder photos/ -target target/photos_target.pickle
+$ python main.py --mode eval --folder photos/ --target target/photos_target.pickle --output-folder /home/user/results/
 ```
-Check scores.csv in <b>'results_{folder}'</b> and the same classification report in logs.
+Check scores.csv in output folder and the same classification report in logs.
