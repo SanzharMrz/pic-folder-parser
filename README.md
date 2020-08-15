@@ -78,7 +78,7 @@ WantedBy=multi-user.target
 
 Then enable and start the service:
 ```bash
-$ systemctl enable photodeamin
-$ systemctl start photodeamin
+$ systemctl enable photodaemon
+$ systemctl start photodaemon
 
 ```
