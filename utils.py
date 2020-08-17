@@ -44,6 +44,20 @@ def post_process(frame, outs, conf_threshold, nms_threshold):
     return final_boxes
 
 
+def get_number_of_faces(net, cap, conf_thres, nms_thres):
+    faces = []
+    while True:
+        has_frame, frame = cap.read()
+        if not has_frame:
+            break
+        blob = cv2.dnn.blobFromImage(frame, 1 / 255, (416, 416), [0, 0, 0], 1, crop=False)
+        net.setInput(blob)
+        outs = net.forward(get_outputs_names(net))
+        faces = post_process(frame, outs, conf_thres, nms_thres)
+    cap.release()
+    return len(faces)
+
+
 def score_photos(folder, target=None, output_folder=None, create_copies=False, conf_thres=0.3, nms_thres=0.4):
     positive_folder = 'yes'
     negative_folder = 'no'
@@ -66,31 +80,21 @@ def score_photos(folder, target=None, output_folder=None, create_copies=False, c
     files = os.listdir(folder)
     files_len = len(files)
     for i, file in enumerate(files, start=1):
-        if not file.endswith(".jpg"):
-            continue
         name = ".".join(file.split(".")[:-1])
         extension = file.split(".")[-1]
-        if name.endswith("_in_progress") or name.endswith("_done"):
+        if name.endswith("_in_progress") or name.endswith("_done") or extension not in ['jpg', 'png']:
             continue
         os.rename(os.path.join(folder, file), os.path.join(folder, name + "_in_progress." + extension))
         file = name + "_in_progress." + extension
         cap = cv2.VideoCapture(os.path.join(folder, file))
-        while True:
-            has_frame, frame = cap.read()
-            if not has_frame:
-                break
-            blob = cv2.dnn.blobFromImage(frame, 1 / 255, (416, 416), [0, 0, 0], 1, crop=False)
-            net.setInput(blob)
-            outs = net.forward(get_outputs_names(net))
-            faces = post_process(frame, outs, conf_thres, nms_thres)
-            print(f'{i} / {files_len} pictures processed, current {file} has {len(faces)} faces')
-            if create_copies:
-                output = os.path.join(folder, file)
-                output_copy_path = os.path.join(files_yes_path, file) if faces else os.path.join(files_no_path, file)
-                copyfile(output, output_copy_path)
-            predicts[file] = int(bool(faces))
-        cap.release()
-        os.rename(os.path.join(folder, name + "_in_progress." + extension), os.path.join(folder, name + "_done." + extension))
+        number_of_faces = get_number_of_faces(net, cap, conf_thres, nms_thres)
+        print(f'{i} / {files_len} pictures processed, current {file} has {number_of_faces} faces')
+        if create_copies:
+            output = os.path.join(folder, file)
+            output_copy_path = os.path.join(files_yes_path, file) if number_of_faces > 0 else os.path.join(files_no_path, file)
+            copyfile(output, output_copy_path)
+        predicts[file] = int(number_of_faces > 0)
+        os.rename(os.path.join(folder, file), os.path.join(folder, name + "_done." + extension))
 
     print_string = f' and results saved in {output_folder}' if create_copies else ''
     print(f'All files processed' + print_string)
