@@ -8,6 +8,7 @@ parser.add_argument('--folder', type=str, default=None, help='set absolute path 
 parser.add_argument('--output-folder', type=str, default=None, help='set absolute path to results')
 parser.add_argument('--target', type=str, default=None, help='set absolute path to target pickle file')
 parser.add_argument('--dynamic-window', type=int, default=1, help='set +- window to analyze')
+parser.add_argument('--rename', type=str, default="yes", help='yes or no')
 args = parser.parse_args()
 
 if args.folder is None:
@@ -23,6 +24,7 @@ while True:
                  folder=args.folder,
                  output_folder=args.output_folder,
                  target=args.target,
-                 dynamic_window=args.dynamic_window)
+                 dynamic_window=args.dynamic_window,
+                 do_rename=args.rename == "yes")
     if args.mode != "daemon":
         break

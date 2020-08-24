@@ -68,7 +68,7 @@ def get_faces(net, cap, conf_thres, nms_thres):
     return faces
 
 
-def score_photos(folder, target=None, output_folder=None, create_copies=False, conf_thres=0.3, nms_thres=0.4, dynamic_window=1):
+def score_photos(folder, target=None, output_folder=None, create_copies=False, conf_thres=0.3, nms_thres=0.4, dynamic_window=1, do_rename=True):
     positive_folder = 'yes'
     negative_folder = 'no'
 
@@ -96,8 +96,9 @@ def score_photos(folder, target=None, output_folder=None, create_copies=False, c
         if name.endswith("_processed") or extension not in ['jpg', 'png']:
             continue
 
-        os.rename(os.path.join(folder, file), os.path.join(folder, name + "_processed." + extension))
-        file = name + "_processed." + extension
+        if do_rename:
+            os.rename(os.path.join(folder, file), os.path.join(folder, name + "_processed." + extension))
+            file = name + "_processed." + extension
 
         ts = name[:8]
         cap_time = time(int(ts[:2]), int(ts[3:5]), int(ts[6:8]))
