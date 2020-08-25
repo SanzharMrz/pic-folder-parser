@@ -171,10 +171,11 @@ def score_photos(folder, target=None, output_folder=None, create_copies=False, c
                     cap['processed'] = True
             buffer = buffer[1:]
 
-    for cap in buffer:
-        if cap['processed']:
-            continue
-        copy_to_results(folder, cap['file'], len(cap['faces']) > 0, files_yes_path, files_no_path)
+    if create_copies:
+        for cap in buffer:
+            if cap['processed']:
+                continue
+            copy_to_results(folder, cap['file'], len(cap['faces']) > 0, files_yes_path, files_no_path)
 
     print_string = f' and results saved in {output_folder}' if create_copies else ''
     print(f'All files processed' + print_string)
