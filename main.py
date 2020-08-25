@@ -20,11 +20,18 @@ if args.mode not in ["predict", "eval", "daemon"]:
     exit()
 
 while True:
-    score_photos(create_copies=args.mode in ['predict', 'daemon'],
-                 folder=args.folder,
-                 output_folder=args.output_folder,
-                 target=args.target,
-                 dynamic_window=args.dynamic_window,
-                 do_rename=args.rename == "yes")
+    try:
+        score_photos(create_copies=args.mode in ['predict', 'daemon'],
+                     folder=args.folder,
+                     output_folder=args.output_folder,
+                     target=args.target,
+                     dynamic_window=args.dynamic_window,
+                     do_rename=args.rename == "yes")
+    except Exception as e:
+        print("Exception:", e)
+        if args.mode == "daemon":
+            pass
+        else:
+            exit(1)
     if args.mode != "daemon":
         break
