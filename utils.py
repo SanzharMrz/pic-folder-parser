@@ -55,7 +55,7 @@ def post_process(frame, outs, conf_threshold, nms_threshold):
 
 
 def get_faces(net, cap, conf_thres, nms_thres, upscale):
-    faces_final = []
+    faces_final = list()
     while True:
         has_frame, frame_raw = cap.read()
         if not has_frame:
@@ -110,7 +110,7 @@ def score_photos(folder, target=None, output_folder=None, create_copies=False, c
     predicts = dict()
     files = sorted(os.listdir(folder))
     files_len = len(files)
-    buffer = []
+    buffer = list()
     for i, file in enumerate(files, start=1):
         name = ".".join(file.split(".")[:-1])
         extension = file.split(".")[-1]
