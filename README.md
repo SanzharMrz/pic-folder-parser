@@ -49,7 +49,14 @@ Daemon mode:
 $ python main.py --mode daemon --folder /home/user/photos/ --output-folder /home/user/results/
 ```
 
-## Usage as a deamon
+# More params
+```bash
+--upscale <yes/no> - slower but more precise, especially for small faces
+--rename <yes/no> - whether or not to rename processed photos
+--dynamic-window <int> - if > 0 - use dynamic post-processing (to exclude singular errors) (WORKS BADLY ACCORDING TO RAW METRICS)
+```
+
+## Usage as a daemon
 
 You can set it up as systemd daemon
 
