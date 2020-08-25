@@ -54,21 +54,42 @@ def post_process(frame, outs, conf_threshold, nms_threshold):
     return final_boxes
 
 
-def get_faces(net, cap, conf_thres, nms_thres):
-    faces = []
+def get_faces(net, cap, conf_thres, nms_thres, upscale):
+    faces_final = []
     while True:
-        has_frame, frame = cap.read()
+        has_frame, frame_raw = cap.read()
         if not has_frame:
             break
-        blob = cv2.dnn.blobFromImage(frame, 1 / 255, (416, 416), [0, 0, 0], 1, crop=False)
-        net.setInput(blob)
-        outs = net.forward(get_outputs_names(net))
-        faces = post_process(frame, outs, conf_thres, nms_thres)
+        bounds = [None]
+        if upscale:
+            bounds += [
+                [0, 0.5, 0, 0.5],
+                [0.25, 0.75, 0, 0.5],
+                [0.5, 1, 0, 0.5],
+
+                [0, 0.5, 0.25, 0.75],
+                [0.25, 0.75, 0.25, 0.75],
+                [0.5, 1, 0.25, 0.75],
+
+                [0, 0.5, 0.5, 1],
+                [0.25, 0.75, 0.5, 1],
+                [0.5, 1, 0.5, 1],
+            ]
+        for bound in bounds:
+            if bound:
+                frame = frame_raw[int(frame_raw.shape[0]*bound[0]):int(frame_raw.shape[0]*bound[1]), int(frame_raw.shape[1]*bound[2]):int(frame_raw.shape[1]*bound[3])]
+            else:
+                frame = frame_raw
+            blob = cv2.dnn.blobFromImage(frame, 1 / 255, (416, 416), [0, 0, 0], 1, crop=False)
+            net.setInput(blob)
+            outs = net.forward(get_outputs_names(net))
+            faces = post_process(frame, outs, conf_thres, nms_thres)
+            faces_final.extend(faces)
     cap.release()
-    return faces
+    return faces_final
 
 
-def score_photos(folder, target=None, output_folder=None, create_copies=False, conf_thres=0.3, nms_thres=0.4, dynamic_window=1, do_rename=True):
+def score_photos(folder, target=None, output_folder=None, create_copies=False, conf_thres=0.3, nms_thres=0.4, dynamic_window=1, do_rename=True, upscale=False):
     positive_folder = 'yes'
     negative_folder = 'no'
 
@@ -123,7 +144,7 @@ def score_photos(folder, target=None, output_folder=None, create_copies=False, c
             )
 
         cap = cv2.VideoCapture(os.path.join(folder, file))
-        faces = get_faces(net, cap, conf_thres, nms_thres)
+        faces = get_faces(net, cap, conf_thres, nms_thres, upscale)
         buffer[-1]["faces"] = faces
         print(f'{i} / {files_len} pictures processed, current {file} has {len(faces)} faces')
         predicts[file.replace("_processed", "")] = int(len(faces) > 0)

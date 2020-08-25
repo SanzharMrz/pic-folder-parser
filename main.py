@@ -8,7 +8,8 @@ parser.add_argument('--folder', type=str, default=None, help='set absolute path 
 parser.add_argument('--output-folder', type=str, default=None, help='set absolute path to results')
 parser.add_argument('--target', type=str, default=None, help='set absolute path to target pickle file')
 parser.add_argument('--dynamic-window', type=int, default=0, help='set +- window to analyze')
-parser.add_argument('--rename', type=str, default="yes", help='yes or no')
+parser.add_argument('--upscale', type=str, default="no", help='Upscale - yes or no')
+parser.add_argument('--rename', type=str, default="yes", help='Rename - yes or no')
 args = parser.parse_args()
 
 if args.folder is None:
@@ -26,7 +27,8 @@ while True:
                      output_folder=args.output_folder,
                      target=args.target,
                      dynamic_window=args.dynamic_window,
-                     do_rename=args.rename == "yes")
+                     do_rename=args.rename == "yes",
+                     upscale=args.upscale == "yes")
     except Exception as e:
         print("Exception:", e)
         if args.mode == "daemon":
