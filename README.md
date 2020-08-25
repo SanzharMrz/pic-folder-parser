@@ -49,7 +49,7 @@ Daemon mode:
 $ python main.py --mode daemon --folder /home/user/photos/ --output-folder /home/user/results/
 ```
 
-# More params
+## More params
 ```bash
 --upscale <yes/no> (default: no) - slower but more precise, especially for small faces
 --rename <yes/no> (default: yes) - whether or not to rename processed photos
