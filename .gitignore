@@ -1,5 +1,6 @@
 data/
 model-weights/
 venv/
+results/
 images/
 __pycache__/

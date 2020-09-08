@@ -1,11 +1,22 @@
-import numpy as np
-
-from shutil import copyfile
-import cv2
 import os
-import pandas as pd
 import pickle
+from datetime import time
+from shutil import copyfile
+
+import cv2
+import numpy as np
+import pandas as pd
 from sklearn.metrics import classification_report
+
+
+def get_seconds(t):
+    return t.hour * 3600 + t.minute * 60 + t.second
+
+
+def copy_to_results(folder, file, result, files_yes_path, files_no_path):
+    output = os.path.join(folder, file)
+    output_copy_path = os.path.join(files_yes_path if result else files_no_path, file)
+    copyfile(output, output_copy_path)
 
 
 def get_outputs_names(net):
@@ -40,18 +51,52 @@ def post_process(frame, outs, conf_threshold, nms_threshold):
         h = i[0]
         box = boxes[h]
         final_boxes.append(box)
-
     return final_boxes
 
 
-def score_photos(folder, target=None, output_folder=None, create_copies=False, conf_thres=0.3, nms_thres=0.4):
+def get_faces(net, cap, conf_thres, nms_thres, upscale):
+    faces_final = list()
+    while True:
+        has_frame, frame_raw = cap.read()
+        if not has_frame:
+            break
+        bounds = [None]
+        if upscale:
+            bounds += [
+                [0, 0.5, 0, 0.5],
+                [0.25, 0.75, 0, 0.5],
+                [0.5, 1, 0, 0.5],
+
+                [0, 0.5, 0.25, 0.75],
+                [0.25, 0.75, 0.25, 0.75],
+                [0.5, 1, 0.25, 0.75],
+
+                [0, 0.5, 0.5, 1],
+                [0.25, 0.75, 0.5, 1],
+                [0.5, 1, 0.5, 1],
+            ]
+        for bound in bounds:
+            if bound:
+                frame = frame_raw[int(frame_raw.shape[0]*bound[0]):int(frame_raw.shape[0]*bound[1]), int(frame_raw.shape[1]*bound[2]):int(frame_raw.shape[1]*bound[3])]
+            else:
+                frame = frame_raw
+            blob = cv2.dnn.blobFromImage(frame, 1 / 255, (416, 416), [0, 0, 0], 1, crop=False)
+            net.setInput(blob)
+            outs = net.forward(get_outputs_names(net))
+            faces = post_process(frame, outs, conf_thres, nms_thres)
+            faces_final.extend(faces)
+    cap.release()
+    return faces_final
+
+
+def score_photos(folder, target=None, output_folder=None, create_copies=False, conf_thres=0.3, nms_thres=0.4, dynamic_window=1, do_rename=True, upscale=False):
     positive_folder = 'yes'
     negative_folder = 'no'
 
     files_yes_path = os.path.join(output_folder, positive_folder)
     files_no_path = os.path.join(output_folder, negative_folder)
 
-    if not os.path.exists(output_folder):
+    if any([not os.path.exists(folder) for folder in [output_folder, files_yes_path, files_no_path]]):
         os.makedirs(files_yes_path)
         os.makedirs(files_no_path)
 
@@ -63,34 +108,74 @@ def score_photos(folder, target=None, output_folder=None, create_copies=False, c
     net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
 
     predicts = dict()
-    files = os.listdir(folder)
+    files = sorted(os.listdir(folder))
     files_len = len(files)
+    buffer = list()
     for i, file in enumerate(files, start=1):
-        if not file.endswith(".jpg"):
-            continue
         name = ".".join(file.split(".")[:-1])
         extension = file.split(".")[-1]
-        if name.endswith("_in_progress") or name.endswith("_done"):
+        if name.endswith("_processed") or extension not in ['jpg', 'png']:
             continue
-        os.rename(os.path.join(folder, file), os.path.join(folder, name + "_in_progress." + extension))
-        file = name + "_in_progress." + extension
-        cap = cv2.VideoCapture(os.path.join(folder, file))
-        while True:
-            has_frame, frame = cap.read()
-            if not has_frame:
-                break
-            blob = cv2.dnn.blobFromImage(frame, 1 / 255, (416, 416), [0, 0, 0], 1, crop=False)
-            net.setInput(blob)
-            outs = net.forward(get_outputs_names(net))
-            faces = post_process(frame, outs, conf_thres, nms_thres)
-            print(f'{i} / {files_len} pictures processed, current {file} has {len(faces)} faces')
+
+        if do_rename:
+            os.rename(os.path.join(folder, file), os.path.join(folder, name + "_processed." + extension))
+            file = name + "_processed." + extension
+
+        ts = name[:8]
+        cap_time = time(int(ts[:2]), int(ts[3:5]), int(ts[6:8]))
+
+        if buffer and get_seconds(cap_time) - get_seconds(buffer[-1]['time']) >= 3:
             if create_copies:
-                output = os.path.join(folder, file)
-                output_copy_path = os.path.join(files_yes_path, file) if faces else os.path.join(files_no_path, file)
-                copyfile(output, output_copy_path)
-            predicts[file] = int(bool(faces))
-        cap.release()
-        os.rename(os.path.join(folder, name + "_in_progress." + extension), os.path.join(folder, name + "_done." + extension))
+                for cap in buffer:
+                    if cap['processed']:
+                        continue
+                    copy_to_results(folder, cap['file'], len(cap['faces']) > 0, files_yes_path, files_no_path)
+            buffer = []
+
+        if not buffer or (get_seconds(cap_time) - get_seconds(buffer[-1]['time']) < 3):
+            buffer.append(
+                {
+                    "name": name,
+                    "extension": extension,
+                    "file": file,
+                    "time": cap_time,
+                    "processed": False
+                }
+            )
+
+        cap = cv2.VideoCapture(os.path.join(folder, file))
+        faces = get_faces(net, cap, conf_thres, nms_thres, upscale)
+        buffer[-1]["faces"] = faces
+        print(f'{i} / {files_len} pictures processed, current {file} has {len(faces)} faces')
+        predicts[file.replace("_processed", "")] = int(len(faces) > 0)
+
+        if len(buffer) == 2 * dynamic_window + 1:
+            has_faces = len(buffer[dynamic_window]['faces']) > 0
+            if has_faces:
+                no_faces_neighboors = [len(cap['faces']) == 0 for i, cap in enumerate(buffer) if i != dynamic_window]
+                if sum(no_faces_neighboors) > dynamic_window:
+                    has_faces = False
+            else:
+                has_faces_neighboors = [len(cap['faces']) > 0 for i, cap in enumerate(buffer) if i != dynamic_window]
+                if sum(has_faces_neighboors) > dynamic_window:
+                    has_faces = True
+            predicts[buffer[dynamic_window]['file'].replace("_processed", "")] = has_faces
+
+            if create_copies:
+                copy_to_results(folder, buffer[dynamic_window]['file'], has_faces, files_yes_path, files_no_path)
+                buffer[dynamic_window]['processed'] = True
+                for cap in buffer[:dynamic_window]:
+                    if cap['processed']:
+                        continue
+                    copy_to_results(folder, cap['file'], len(cap['faces']) > 0, files_yes_path, files_no_path)
+                    cap['processed'] = True
+            buffer = buffer[1:]
+
+    if create_copies:
+        for cap in buffer:
+            if cap['processed']:
+                continue
+            copy_to_results(folder, cap['file'], len(cap['faces']) > 0, files_yes_path, files_no_path)
 
     print_string = f' and results saved in {output_folder}' if create_copies else ''
     print(f'All files processed' + print_string)
